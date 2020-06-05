@@ -162,9 +162,10 @@ class HtmlReportMatrix(ReportMatrix, parser.HtmlHeadMixin):
         #   test2  s  /  -  % Partial Pass
         #   test3  /  /  /  * Pass
         output += "<table class='test-matrix'>"
+        output += "<thead>"
 
         def make_underskip(length):
-            return "<td align='middle'>&#124;</td>" * length
+            return "<td align='middle'>&#123;</td>" * length
 
         spansize = 1 + len(self.reports)
         report_headers = 0
@@ -173,30 +174,31 @@ class HtmlReportMatrix(ReportMatrix, parser.HtmlHeadMixin):
 
         stats = self.get_stats_table()
 
+        output += "<tr>\n"
         for axis in self.report_order():
             label = axis
             if label.endswith(".xml"):
                 label = label[:-4]
-            underskip = make_underskip(report_headers)
+            #underskip = make_underskip(report_headers)
 
-            header = "<td colspan='{}'><pre>{}</pre></td>".format(spansize,
-                                                                  label)
+            header = "<th class='rotate'><div><span>{}</span></div></th>\n".format(label)
             spansize -= 1
             report_headers += 1
             first_cell = ""
             if not shown_stats:
                 # insert the stats table
-                first_cell = "<td rowspan='{}'>{}</td>".format(
-                    len(self.report_order()),
+                first_cell = "<th rowspan='1'>{}</th>".format(
                     stats
                 )
                 shown_stats = True
+                output += first_cell
+                #output += "<th></th>"
 
-            output += "<tr>{}{}{}</tr>".format(first_cell,
-                                               underskip, header)
 
-        output += "<tr><td></td>{}</tr>".format(
-            make_underskip(len(self.reports)))
+            output += header
+
+        output += "</tr>\n"
+        output += "</thead><tbody>\n"
 
         # iterate each class
         for classname in self.classes:
@@ -246,7 +248,7 @@ class HtmlReportMatrix(ReportMatrix, parser.HtmlHeadMixin):
                     combined_name
                 )
                 output += "</tr>"
-
+        output += "</tbody>"
         output += "</table>"
         output += "</body>"
         output += "</html>"
